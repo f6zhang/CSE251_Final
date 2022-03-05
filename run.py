@@ -103,10 +103,6 @@ if __name__ == "__main__":
     print("Use GPU: " + str(torch.cuda.is_available()))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    torchvision.datasets.FashionMNIST(root='./data', download=True)
-    torchvision.datasets.USPS(root='./data', download=True)
-    torchvision.datasets.SVHN(root='./data', download=True)
-
     train_data, test_data = None, None
     
     if args.data_type == 'move':
