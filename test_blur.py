@@ -2,7 +2,7 @@ import blur
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from PIL import Image
+import matplotlib.pyplot as plt
 
 if __name__=="__main__":
     train_data, _ = blur.gaussian_blur_data()
@@ -15,9 +15,8 @@ if __name__=="__main__":
     for iter, (inputs, labels) in tbar:
         id = 0
         for img in inputs:
-            img = img.numpy()[0]
-            img = Image.fromarray(img, 'L')
-            img.save('./images/gauss_blur' + str(id) + '.jpg')
+            img = img.numpy()[0].astype(float)
+            plt.imsave('./images/gauss_blur' + str(id) + '.jpg', img, cmap='gray')
             id += 1
 
     train_data, _ = blur.move_blur_data()
@@ -30,7 +29,6 @@ if __name__=="__main__":
     for iter, (inputs, labels) in tbar:
         id = 0
         for img in inputs:
-            img = img.numpy()[0]
-            img = Image.fromarray(img, 'L')
-            img.save('./images/move_blur' + str(id) + '.jpg')
+            img = img.numpy()[0].astype(float)
+            plt.imsave('./images/move_blur' + str(id) + '.jpg', img, cmap='gray')
             id += 1

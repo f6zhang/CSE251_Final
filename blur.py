@@ -10,7 +10,7 @@ def gaussian_blur_data(kernal_size=5, sigma=2):
         download=False,
         transform=transforms.Compose([
             transforms.ToTensor(),
-            #torchvision.transforms.GaussianBlur(kernal_size, sigma)
+            torchvision.transforms.GaussianBlur(kernal_size, sigma)
         ])
     )
 
@@ -20,7 +20,7 @@ def gaussian_blur_data(kernal_size=5, sigma=2):
         download=False,
         transform=transforms.Compose([
             transforms.ToTensor(),
-            #torchvision.transforms.GaussianBlur(kernal_size, sigma)
+            torchvision.transforms.GaussianBlur(kernal_size, sigma)
         ])
     )
 
@@ -33,8 +33,8 @@ def move_blur_data(kernal_size=5, sigma=2, box_size=5):
         download=False,
         transform=transforms.Compose([
             transforms.ToTensor(),
-            #torchvision.transforms.GaussianBlur(kernal_size, sigma),
-            #move_blur(box_size)
+            torchvision.transforms.GaussianBlur(kernal_size, sigma),
+            move_blur(box_size)
         ])
     )
 
@@ -44,8 +44,8 @@ def move_blur_data(kernal_size=5, sigma=2, box_size=5):
         download=False,
         transform=transforms.Compose([
             transforms.ToTensor(),
-            #torchvision.transforms.GaussianBlur(kernal_size, sigma),
-            #move_blur(box_size)
+            torchvision.transforms.GaussianBlur(kernal_size, sigma),
+            move_blur(box_size)
         ])
     )
     return train_data, test_data
