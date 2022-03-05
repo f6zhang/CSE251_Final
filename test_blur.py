@@ -6,9 +6,8 @@ import matplotlib.pyplot as plt
 
 if __name__=="__main__":
     train_data, _ = blur.gaussian_blur_data()
-    show_set, _ = torch.utils.data.random_split(train_data, [10, 59990])
 
-    show_loader = DataLoader(dataset=show_set, batch_size=10, shuffle=False)
+    show_loader = DataLoader(dataset=train_data, batch_size=10, shuffle=False)
 
     tbar = tqdm(enumerate(show_loader), total=len(show_loader), desc='Bar desc', leave=True)
 
@@ -18,11 +17,11 @@ if __name__=="__main__":
             img = img.numpy()[0].astype(float)
             plt.imsave('./images/gauss_blur' + str(id) + '.jpg', img, cmap='gray')
             id += 1
+        break
 
     train_data, _ = blur.move_blur_data()
-    show_set, _ = torch.utils.data.random_split(train_data, [10, 59990])
 
-    show_loader = DataLoader(dataset=show_set, batch_size=10, shuffle=False)
+    show_loader = DataLoader(dataset=train_data, batch_size=10, shuffle=False)
 
     tbar = tqdm(enumerate(show_loader), total=len(show_loader), desc='Bar desc', leave=True)
 
@@ -32,3 +31,4 @@ if __name__=="__main__":
             img = img.numpy()[0].astype(float)
             plt.imsave('./images/move_blur' + str(id) + '.jpg', img, cmap='gray')
             id += 1
+        break

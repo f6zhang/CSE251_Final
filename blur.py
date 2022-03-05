@@ -1,7 +1,9 @@
 import torchvision
 from torchvision import transforms
-from random import randint
+from random import randrange, choice
 import numpy as np
+import torch
+from scipy.ndimage import convolve
 
 
 def get_dataset(name):
@@ -65,7 +67,7 @@ def gaussian_blur_data(dataset='fashionMNIST', kernal_size=5, sigma=2):
 
     return train_data, test_data
 
-def move_blur_data(dataset='fashionMNIST', kernal_size=5, sigma=2, box_size=5):
+def move_blur_data(dataset='fashionMNIST', kernal_size=5, sigma=2, box_size=10):
     dataset_fn = get_dataset(name=dataset)
     train_data = dataset_fn(
         root='./data',
@@ -74,7 +76,7 @@ def move_blur_data(dataset='fashionMNIST', kernal_size=5, sigma=2, box_size=5):
         transform=transforms.Compose([
             transforms.ToTensor(),
             torchvision.transforms.GaussianBlur(kernal_size, sigma),
-            move_blur(box_size)
+            move_blur(box_size),
         ])
     )
 
@@ -85,7 +87,7 @@ def move_blur_data(dataset='fashionMNIST', kernal_size=5, sigma=2, box_size=5):
         transform=transforms.Compose([
             transforms.ToTensor(),
             torchvision.transforms.GaussianBlur(kernal_size, sigma),
-            move_blur(box_size)
+            move_blur(box_size),
         ])
     )
     return train_data, test_data
@@ -95,9 +97,13 @@ class move_blur:
         self.box_size = box_size
 
     def __call__(self, image):
-        random_x = randint(-self.box_size, self.box_size)
-        random_y = randint(-self.box_size, self.box_size)
-        for i in range(np.max((0, random_x)), np.min((28, image.shape[1] + random_x))):
-            for j in range(np.max((0, random_y)), np.min((28, image.shape[2] + random_y))):
-                image[0, i, j] = (image[0, i, j] + image[0, i-random_x, j-random_y])/2
-        return image
+        filter = np.zeros([self.box_size, self.box_size])
+        left = choice([False, True])
+        if left:
+            for i in range(0, self.box_size):
+                filter[i, -i-1] = 1 / self.box_size
+        else:
+            for i in range(0, self.box_size):
+                filter[-i-1,i] = 1 / self.box_size
+        image = convolve(image[0], filter, mode="constant", cval=0)
+        return image[None,...]
