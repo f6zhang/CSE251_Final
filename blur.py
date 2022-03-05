@@ -3,6 +3,28 @@ from torchvision import transforms
 from random import randint
 import numpy as np
 
+
+def original_data():
+    train_data = torchvision.datasets.FashionMNIST(
+        root='./data',
+        train = True,
+        download=False,
+        transform=transforms.Compose([
+            transforms.ToTensor()
+        ])
+    )
+
+    test_data = torchvision.datasets.FashionMNIST(
+        root='./data',
+        train=False,
+        download=False,
+        transform=transforms.Compose([
+            transforms.ToTensor()
+        ])
+    )
+
+    return train_data, test_data
+
 def gaussian_blur_data(kernal_size=5, sigma=2):
     train_data = torchvision.datasets.FashionMNIST(
         root='./data',
