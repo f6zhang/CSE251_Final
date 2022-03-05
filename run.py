@@ -71,14 +71,12 @@ def evaluate(data_loader):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--data_type', default='original')
-    parser.add_argument('--num_epochs', default=10)
-    parser.add_argument('--patient', default=5)
-    parser.add_argument('--batch_size', default=64)
-    parser.add_argument('--lr', default=0.0001)
+    parser.add_argument('--data_type', type=str, default='original')
+    parser.add_argument('--num_epochs', type=int,default=10)
+    parser.add_argument('--patient', type=int,  default=5)
+    parser.add_argument('--batch_size',  type=int, default=64)
+    parser.add_argument('--lr', type=float, default=0.0001)
     args = parser.parse_args()
-
-    
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
