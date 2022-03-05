@@ -4,8 +4,23 @@ from random import randint
 import numpy as np
 
 
-def original_data():
-    train_data = torchvision.datasets.FashionMNIST(
+def get_dataset(name):
+    if name == 'fashionMNIST':
+        dataset = torchvision.datasets.FashionMNIST        
+    elif name == 'SVHN':
+        dataset = torchvision.datasets.SVHN
+    elif name == 'EMNIST':
+        dataset = torchvision.datasets.EMNIST
+    elif name == 'USPS':
+        dataset = torchvision.datasets.USPS
+    else:
+        raise NotImplementedError("Dataset is not supported!")
+    return dataset
+    
+
+def original_data(dataset='fashionMNIST'):
+    dataset_fn = get_dataset(name=dataset)
+    train_data = dataset_fn(
         root='./data',
         train = True,
         download=False,
@@ -14,7 +29,7 @@ def original_data():
         ])
     )
 
-    test_data = torchvision.datasets.FashionMNIST(
+    test_data = dataset_fn(
         root='./data',
         train=False,
         download=False,
@@ -25,8 +40,10 @@ def original_data():
 
     return train_data, test_data
 
-def gaussian_blur_data(kernal_size=5, sigma=2):
-    train_data = torchvision.datasets.FashionMNIST(
+def gaussian_blur_data(dataset='fashionMNIST', kernal_size=5, sigma=2):
+    dataset_fn = get_dataset(name=dataset)
+
+    train_data = dataset_fn(
         root='./data',
         train = True,
         download=False,
@@ -36,7 +53,7 @@ def gaussian_blur_data(kernal_size=5, sigma=2):
         ])
     )
 
-    test_data = torchvision.datasets.FashionMNIST(
+    test_data = dataset_fn(
         root='./data',
         train=False,
         download=False,
@@ -48,8 +65,9 @@ def gaussian_blur_data(kernal_size=5, sigma=2):
 
     return train_data, test_data
 
-def move_blur_data(kernal_size=5, sigma=2, box_size=5):
-    train_data = torchvision.datasets.FashionMNIST(
+def move_blur_data(dataset='fashionMNIST', kernal_size=5, sigma=2, box_size=5):
+    dataset_fn = get_dataset(name=dataset)
+    train_data = dataset_fn(
         root='./data',
         train = True,
         download=False,
@@ -60,7 +78,7 @@ def move_blur_data(kernal_size=5, sigma=2, box_size=5):
         ])
     )
 
-    test_data = torchvision.datasets.FashionMNIST(
+    test_data = dataset_fn(
         root='./data',
         train=False,
         download=False,
