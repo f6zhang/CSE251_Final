@@ -13,6 +13,14 @@ import torchvision
 import time
 from scipy.ndimage import gaussian_filter
 
+np.random.seed(2048)
+torch.manual_seed(2048)
+
+def init_weights(m):
+    if isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d):
+        torch.nn.init.xavier_uniform_(m.weight.data)
+        torch.nn.init.normal_(m.bias.data) #xavier not applicable for biases 
+        
 def train(train_loader, args):
     start_time = time.time()
     model.train()
@@ -29,7 +37,7 @@ def train(train_loader, args):
         for i, (images, labels) in enumerate(train_loader):
             inputs = images.to(device)
             if args.isGaussian:
-                inputs = torch.tensor(np.array([gaussian_filter(img, sigma=1) for img in images]), device=device)
+                inputs = torch.tensor(np.array([gaussian_filter(img, sigma=args.sigma) for img in images]), device=device)
                 if args.isRestore:
                     inputs = restoreModel(inputs)
             labels = labels.to(device)
@@ -67,7 +75,8 @@ def evaluate(data_loader):
         for images, labels in data_loader:
             inputs = images.to(device)
             if args.isGaussian:
-                inputs = torch.tensor(np.array([gaussian_filter(img, sigma=1) for img in images]), device=device)
+                #inputs += torch.normal(0, args.sigma,images.shape)
+                inputs = torch.tensor(np.array([gaussian_filter(img, sigma=args.sigma) for img in images]), device=device)
                 if args.isRestore:
                     inputs = restoreModel(inputs)
             labels = labels.to(device)
@@ -97,7 +106,7 @@ def test(model, data_loader):
         for images, labels in data_loader:
             inputs = images.to(device)
             if args.isGaussian:
-                inputs = torch.tensor(np.array([gaussian_filter(img, sigma=1) for img in images]), device=device)
+                inputs = torch.tensor(np.array([gaussian_filter(img, sigma=args.sigma) for img in images]), device=device)
                 if args.isRestore:
                     inputs = restoreModel(inputs)
             labels = labels.to(device)
@@ -156,6 +165,7 @@ if __name__ == "__main__":
 
     
     model = U_Net(inchannel, n, n_classes)
+    model.apply(init_weights)
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr = args.lr)   
     loss_func = nn.CrossEntropyLoss()
@@ -163,7 +173,7 @@ if __name__ == "__main__":
     restoreModel =  RestoreCNN(inchannel, n)
     
     if args.isRestore:
-        restoreModel = torch.load( './' + "restore_"+ args.data + "_"+ str(int(args.sigma)) +  "_"+'latest_model.pt')
+        restoreModel = torch.load( './' + "restore_"+ args.data + "_"+ str(int(args.sigma)) +  "_" + 'latest_model.pt')
         restoreModel.to(device)
         restoreModel.eval()
 

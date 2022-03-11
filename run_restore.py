@@ -12,6 +12,14 @@ import torchvision
 import time
 from scipy.ndimage import gaussian_filter
 
+np.random.seed(2048)
+torch.manual_seed(2048)
+
+def init_weights(m):
+    if isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d):
+        torch.nn.init.xavier_uniform_(m.weight.data)
+        torch.nn.init.normal_(m.bias.data) #xavier not applicable for biases   
+
 def train(train_loader, args):
     start_time = time.time()
     model.train()
@@ -26,7 +34,7 @@ def train(train_loader, args):
     for epoch in range(num_epochs):
         training_loss = 0
         for i, (images, _) in enumerate(train_loader):
-            inputs = torch.tensor(np.array([gaussian_filter(img, sigma=1) for img in images]), device=device)
+            inputs = torch.tensor(np.array([gaussian_filter(img, sigma=args.sigma) for img in images]), device=device)
             targets = images.to(device)
             output = model(inputs)             
             loss = loss_func(output, targets)
@@ -44,8 +52,7 @@ def train(train_loader, args):
              
         val_loss = evaluate(valid_loader)
         if val_loss < best_loss:
-            #save_model(model, path='./' + "restore_"+ args.data + "_" + args.data_type + "_"+'latest_model.pt')
-            torch.save(model, './' + "restore_"+ args.data + "_" + str(int(args.sigma)) +  "_"+'latest_model.pt')
+            torch.save(model, './' + "restore_"+ args.data + "_" + str(int(args.sigma)) +  "_" +'latest_model.pt')
             best_loss = val_loss
             patient = 0
         else:
@@ -59,7 +66,7 @@ def evaluate(data_loader):
     total_loss = 0
     with torch.no_grad():
         for images, _ in data_loader:
-            inputs = torch.tensor(np.array([gaussian_filter(img, sigma=1) for img in images]), device=device)
+            inputs = torch.tensor(np.array([gaussian_filter(img, sigma=args.sigma) for img in images]), device=device)
             targets = images.to(device)
             output = model(inputs)             
             loss = loss_func(output, targets)
@@ -72,14 +79,13 @@ def evaluate(data_loader):
     return total_loss
 
 def test(model, data_loader):
-    model = torch.load('./' + "restore_"+ args.data + "_" + str(int(args.sigma)) +  "_"+'latest_model.pt')
-    #load_model(model, device, path='./' + args.data + "_" + args.data_type + "_"+'latest_model.pt')
+    model = torch.load('./' + "restore_"+ args.data + "_"+ str(int(args.sigma)) +  "_"+'latest_model.pt')
     model.eval()
     total = 0
     total_loss = 0
     with torch.no_grad():
         for images, _ in data_loader:
-            inputs = torch.tensor(np.array([gaussian_filter(img, sigma=1) for img in images]), device=device)
+            inputs = torch.tensor(np.array([gaussian_filter(img, sigma=args.sigma) for img in images]), device=device)
             targets = images.to(device)
             output = model(inputs)             
             loss = loss_func(output, targets)
@@ -132,6 +138,7 @@ if __name__ == "__main__":
 
     
     model = RestoreCNN(inchannel, n)
+    model.apply(init_weights)
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr = args.lr)   
     loss_func = nn.MSELoss()

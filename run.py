@@ -9,8 +9,10 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from models import *
 import argparse
 import torchvision
+import time
 
 def train(train_loader, args):
+    start_time = time.time()
     model.train()
 
     num_epochs = args.num_epochs
@@ -23,6 +25,8 @@ def train(train_loader, args):
     for epoch in range(num_epochs):
         training_loss = 0
         for i, (images, labels) in enumerate(train_loader):
+            images = images.to(device)
+            labels = labels.to(device)
             output = model(images)             
             loss = loss_func(output, labels)
             optimizer.zero_grad()           
@@ -32,8 +36,8 @@ def train(train_loader, args):
             training_loss += loss.item()
             
             if (i+1) % 100 == 0:
-                print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}' 
-                       .format(epoch + 1, num_epochs, i + 1, total_step, iter_loss/100.0))
+                print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Time cost: {:.2f}s' 
+                       .format(epoch + 1, num_epochs, i + 1, total_step, iter_loss/100.0, time.time()-start_time))
                 iter_loss = 0.0
         print("Training Loss is {:.4f}.".format(training_loss / total_step))
              
@@ -54,6 +58,8 @@ def evaluate(data_loader):
     total_loss = 0
     with torch.no_grad():
         for images, labels in data_loader:
+            images = images.to(device)
+            labels = labels.to(device)
             output= model(images)
             loss = loss_func(output, labels)
             pred_y = torch.argmax(output, 1)
@@ -76,6 +82,8 @@ def test(model, data_loader):
     total_loss = 0
     with torch.no_grad():
         for images, labels in data_loader:
+            images = images.to(device)
+            labels = labels.to(device)
             output= model(images)
             loss = loss_func(output, labels)
             pred_y = torch.argmax(output, 1)
@@ -133,7 +141,10 @@ if __name__ == "__main__":
         n_classes = max(train_data.targets) + 1
     except:
         n_classes = max(train_data.labels) + 1
-    model= CNN(inchannel, n, n_classes)
+
+    #model= CNN(inchannel, n, n_classes)
+    model = U_Net(inchannel, n, n_classes)
+    model.to(device)
     optimizer = optim.Adam(model.parameters(), lr = args.lr)   
     loss_func = nn.CrossEntropyLoss()
 
