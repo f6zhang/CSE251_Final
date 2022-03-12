@@ -156,7 +156,7 @@ def gaussian_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2):
         )
         return train_data, test_data
 
-def move_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2, box_size=9):
+def move_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2, box_size=18):
     dataset_fn = get_dataset(name=dataset)
     if dataset in ['FashionMNIST','USPS']:
         train_data = dataset_fn(
