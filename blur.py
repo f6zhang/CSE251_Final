@@ -1,8 +1,8 @@
 import torchvision
 from torchvision import transforms
-from random import randint
+from random import randint, choice
 import numpy as np
-
+from scipy.ndimage.filters import convolve
 
 def get_dataset(name):
     if name == 'FashionMNIST':
@@ -83,7 +83,7 @@ def original_data(dataset='FashionMNIST'):
         return train_data, test_data
 
 
-def gaussian_blur_data(dataset='FashionMNIST', kernal_size=5, sigma=2):
+def gaussian_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2):
     dataset_fn = get_dataset(name=dataset)
 
     if dataset in ['FashionMNIST','USPS']:
@@ -156,7 +156,7 @@ def gaussian_blur_data(dataset='FashionMNIST', kernal_size=5, sigma=2):
         )
         return train_data, test_data
 
-def move_blur_data(dataset='FashionMNIST', kernal_size=5, sigma=2, box_size=5):
+def move_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2, box_size=9):
     dataset_fn = get_dataset(name=dataset)
     if dataset in ['FashionMNIST','USPS']:
         train_data = dataset_fn(
@@ -235,9 +235,14 @@ class move_blur:
         self.box_size = box_size
 
     def __call__(self, image):
-        random_x = randint(-self.box_size, self.box_size)
-        random_y = randint(-self.box_size, self.box_size)
-        for i in range(np.max((0, random_x)), np.min((28, image.shape[1] + random_x))):
-            for j in range(np.max((0, random_y)), np.min((28, image.shape[2] + random_y))):
-                image[0, i, j] = (image[0, i, j] + image[0, i-random_x, j-random_y])/2
-        return image
+        random_x = randint(1, self.box_size)
+        random_y = randint(self.box_size - random_x, self.box_size)
+        filter = np.zeros((random_x, random_y))
+        steps = max((random_x, random_y))
+        left = choice([True, False])
+        for i in range(steps):
+            if left:
+                filter[int(random_x/steps * i), int(random_y/steps * i)] = 1/steps
+            else:
+                filter[random_x - int(random_x / steps * i) - 1, int(random_y / steps * i)] = 1 / steps
+        return convolve(image, np.expand_dims(filter, axis=0), mode='constant', cval=0.0)
