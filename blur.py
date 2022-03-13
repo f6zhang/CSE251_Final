@@ -235,8 +235,10 @@ class move_blur:
         self.box_size = box_size
 
     def __call__(self, image):
-        random_x = randint(1, self.box_size)
-        random_y = randint(self.box_size - random_x, self.box_size)
+        random_x, random_y = 0, 0
+        while random_x + random_y < self.box_size:
+            random_x = randint(1, self.box_size)
+            random_y = randint(1, self.box_size)
         filter = np.zeros((random_x, random_y))
         steps = max((random_x, random_y))
         left = choice([True, False])
