@@ -10,7 +10,7 @@ from models import *
 import argparse
 import torchvision
 import time
-from scipy.ndimage import gaussian_filter
+import matplotlib.pyplot as plt
 
 np.random.seed(2048)
 torch.manual_seed(2048)
@@ -27,8 +27,8 @@ def train(train_loader, args):
     num_epochs = args.num_epochs
     patient = args.patient
     best_loss = 1<<30
-    iter_loss = 0
-    training_loss = 0
+    train_losses = []
+    val_losses = []
     total_step = len(train_loader)
 
     for epoch in range(num_epochs):
@@ -51,8 +51,10 @@ def train(train_loader, args):
                        .format(epoch + 1, num_epochs, i + 1, total_step, iter_loss/100.0, time.time()-start_time))
                 iter_loss = 0.0
         print("Training Loss is {:.4f}.".format(training_loss / total_step))
-             
+        train_losses.append(training_loss / total_step)
+
         val_loss = evaluate(valid_loader)
+        val_losses.append(val_loss)
         if val_loss < best_loss:
             torch.save(model, './' + "restore_"+ args.data + "_" + str(int(args.sigma)) +  "_" +'latest_model.pt')
             best_loss = val_loss
@@ -61,6 +63,7 @@ def train(train_loader, args):
             patient += 1
             if patient >=5:
                 break
+    show_plot(train_losses, val_losses, type="Loss", save_path="results/loss_plt.png")
 
 def evaluate(data_loader):
     model.eval()
@@ -97,6 +100,26 @@ def test(model, data_loader):
     print('Loss of the model on the Test images: %.4f' % total_loss)
 
     return total_loss
+
+
+# Draw the plot for train/validation loss/accuarcy
+def show_plot(train, validation, save_path=None, type="Loss"):
+    x_axis = []
+    for i in range(len(train)):
+        x_axis.append(i + 1)
+
+    plt.figure()
+    plt.plot(x_axis, train, label="Train")
+    plt.plot(x_axis, validation, label="Validation")
+    plt.xlabel('Epoch')
+    plt.ylabel(type)
+    plt.title("Train and Validation " + type + " over epoches")
+    plt.legend()
+
+    if save_path is not None:
+        plt.savefig(save_path)
+    else:
+        plt.show()
 
 
 if __name__ == "__main__":
