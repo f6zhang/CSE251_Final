@@ -34,7 +34,7 @@ def train(train_loader, args):
     for epoch in range(num_epochs):
         training_loss = 0
         for i, (images, _) in enumerate(train_loader):
-            inputs = torch.tensor(np.array([gaussian_filter(img, sigma=args.sigma) for img in images]), device=device)
+            inputs = torch.tensor(blur_filter(images), device=device, dtype=torch.float32)
             targets = images.to(device)
             output = model(inputs)             
             loss = loss_func(output, targets)
@@ -66,7 +66,7 @@ def evaluate(data_loader):
     total_loss = 0
     with torch.no_grad():
         for images, _ in data_loader:
-            inputs = torch.tensor(np.array([gaussian_filter(img, sigma=args.sigma) for img in images]), device=device)
+            inputs = torch.tensor(blur_filter(images), device=device, dtype=torch.float32)
             targets = images.to(device)
             output = model(inputs)             
             loss = loss_func(output, targets)
@@ -85,7 +85,7 @@ def test(model, data_loader):
     total_loss = 0
     with torch.no_grad():
         for images, _ in data_loader:
-            inputs = torch.tensor(np.array([gaussian_filter(img, sigma=args.sigma) for img in images]), device=device)
+            inputs = torch.tensor(blur_filter(images), device=device, dtype=torch.float32)
             targets = images.to(device)
             output = model(inputs)             
             loss = loss_func(output, targets)
@@ -105,6 +105,8 @@ if __name__ == "__main__":
     parser.add_argument('--patient', type=int,  default=5)
     parser.add_argument('--batch_size',  type=int, default=64)
     parser.add_argument('--lr', type=float, default=0.0001)
+    parser.add_argument('--box_size', type=int, default=18)
+    parser.add_argument('--kernel', type=int, default=9)
     parser.add_argument('--sigma', type=float, default=1.0)
     parser.add_argument('--isRestore', type=bool, default=False)
     args = parser.parse_args()
@@ -113,6 +115,13 @@ if __name__ == "__main__":
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     train_data, test_data = original_data(dataset=args.data)
+
+    if args.data_type == 'move':
+        blur_filter = move_blur(args.box_size, args.kernel, args.sigma)
+    elif args.data_type == 'gaussian':
+        blur_filter = torchvision.transforms.GaussianBlur(args.kernel, args.sigma)
+    else:
+        blur_filter = None
 
     indices = list(range(len(train_data)))
     np.random.shuffle(indices)

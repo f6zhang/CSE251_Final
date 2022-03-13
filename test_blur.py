@@ -15,7 +15,7 @@ if __name__=="__main__":
         id = 0
         for img in inputs:
             img = img.numpy()[0].astype(float)
-            plt.imsave('./images/origin_' + str(id) + '.jpg', img, cmap='gray')
+            plt.imsave('./images/compare_filter/origin_' + str(id) + '.jpg', img, cmap='gray')
             id += 1
         break
 
