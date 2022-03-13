@@ -5,7 +5,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 if __name__=="__main__":
-    train_data, _ = blur.original_data()
+    train_data, _ = blur.original_data('USPS')
 
     show_loader = DataLoader(dataset=train_data, batch_size=10, shuffle=False)
 

@@ -47,6 +47,7 @@ def original_data(dataset='FashionMNIST'):
             split = 'train',
             download=True,
             transform=transforms.Compose([
+                transforms.Grayscale(),
                 transforms.ToTensor()
             ])
         )
@@ -56,6 +57,7 @@ def original_data(dataset='FashionMNIST'):
             split = 'test',
             download=True,
             transform=transforms.Compose([
+                transforms.Grayscale(),
                 transforms.ToTensor()
             ])
         )
@@ -116,6 +118,7 @@ def gaussian_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2):
             split = 'train',
             download=True,
             transform=transforms.Compose([
+                transforms.Grayscale(),
                 transforms.ToTensor(),
                 torchvision.transforms.GaussianBlur(kernal_size, sigma)
             ])
@@ -126,6 +129,7 @@ def gaussian_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2):
             split = 'test',
             download=True,
             transform=transforms.Compose([
+                transforms.Grayscale(),
                 transforms.ToTensor(),
                 torchvision.transforms.GaussianBlur(kernal_size, sigma)
             ])
@@ -157,7 +161,7 @@ def gaussian_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2):
         )
         return train_data, test_data
 
-def move_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2, box_size=18):
+def move_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2, box_size=9):
     dataset_fn = get_dataset(name=dataset)
     if dataset in ['FashionMNIST','USPS']:
         train_data = dataset_fn(
@@ -188,6 +192,7 @@ def move_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2, box_size=18):
             split='train',
             download=False,
             transform=transforms.Compose([
+                transforms.Grayscale(),
                 transforms.ToTensor(),
                 #torchvision.transforms.GaussianBlur(kernal_size, sigma),
                 move_blur(box_size, kernal_size, sigma)
@@ -199,6 +204,7 @@ def move_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2, box_size=18):
             split='test',
             download=False,
             transform=transforms.Compose([
+                transforms.Grayscale(),
                 transforms.ToTensor(),
                 #torchvision.transforms.GaussianBlur(kernal_size, sigma),
                 move_blur(box_size, kernal_size, sigma)
@@ -232,7 +238,7 @@ def move_blur_data(dataset='FashionMNIST', kernal_size=9, sigma=2, box_size=18):
         return train_data, test_data
 
 class move_blur:
-    def __init__(self, box_size=18, kernal_size=9, sigma=2):
+    def __init__(self, box_size=9, kernal_size=9, sigma=2):
         self.box_size = box_size
         self.gauss = torchvision.transforms.GaussianBlur(kernal_size, sigma)
 

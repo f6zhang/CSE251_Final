@@ -135,24 +135,24 @@ class RestoreCNN(nn.Module):
         super(RestoreCNN, self).__init__()
         self.image_size = image_size
         self.inchannel = inchannel
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)
-        self.down1 = nn.Conv2d(32, 32, kernel_size=3, stride=2, padding=1)
-        self.bn1 = nn.BatchNorm2d(32)
+        self.conv1 = nn.Conv2d(1, 64, kernel_size=9, stride=1, padding=4)
+        self.down1 = nn.Conv2d(64, 64, kernel_size=9, stride=2, padding=4)
+        self.bn1 = nn.BatchNorm2d(64)
 
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
-        self.down2 = nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1)
-        self.bn2 = nn.BatchNorm2d(64)
+        self.conv2 = nn.Conv2d(64, 128, kernel_size=9, stride=1, padding=4)
+        self.down2 = nn.Conv2d(128, 128, kernel_size=9, stride=2, padding=4)
+        self.bn2 = nn.BatchNorm2d(128)
 
-        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1)
-        self.up1 = nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1)
-        self.bn3 = nn.BatchNorm2d(128)
+        self.conv3 = nn.Conv2d(128, 256, kernel_size=9, stride=1, padding=4)
+        self.up1 = nn.ConvTranspose2d(256, 128, kernel_size=9, stride=2, padding=4, output_padding=1)
+        self.bn3 = nn.BatchNorm2d(256)
 
-        self.conv4 = nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1)
-        self.up2 = nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1)
-        self.bn4 = nn.BatchNorm2d(64)
+        self.conv4 = nn.Conv2d(256, 128, kernel_size=9, stride=1, padding=4)
+        self.up2 = nn.ConvTranspose2d(128, 64, kernel_size=9, stride=2, padding=4, output_padding=1)
+        self.bn4 = nn.BatchNorm2d(128)
 
-        self.conv5 = nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1)
-        self.conv6 = nn.Conv2d(32, 1, kernel_size=1, stride=1)
+        self.conv5 = nn.Conv2d(128, 64, kernel_size=9, stride=1, padding=4)
+        self.conv6 = nn.Conv2d(64, 1, kernel_size=1, stride=1)
 
         self.relu = nn.PReLU()
 

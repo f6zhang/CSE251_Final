@@ -33,7 +33,9 @@ def train(train_loader, args):
 
     for epoch in range(num_epochs):
         training_loss = 0
+        iter_loss = 0
         for i, (images, _) in enumerate(train_loader):
+            images = random_rotate(images)
             inputs = torch.tensor(blur_filter(images), device=device, dtype=torch.float32)
             targets = images.to(device)
             output = model(inputs)             
@@ -99,16 +101,17 @@ def test(model, data_loader):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--data', type=str, default='FashionMNIST')
+    parser.add_argument('--data', type=str, default='EMNIST')
     parser.add_argument('--data_type', type=str, default='original')
     parser.add_argument('--num_epochs', type=int,default=10)
     parser.add_argument('--patient', type=int,  default=5)
     parser.add_argument('--batch_size',  type=int, default=64)
     parser.add_argument('--lr', type=float, default=0.0001)
-    parser.add_argument('--box_size', type=int, default=18)
+    parser.add_argument('--box_size', type=int, default=9)
     parser.add_argument('--kernel', type=int, default=9)
     parser.add_argument('--sigma', type=float, default=1.0)
     parser.add_argument('--isRestore', type=bool, default=False)
+    parser.add_argument('--load', type=bool, default=False)
     args = parser.parse_args()
 
     print("Use GPU: " + str(torch.cuda.is_available()))
@@ -122,6 +125,12 @@ if __name__ == "__main__":
         blur_filter = torchvision.transforms.GaussianBlur(args.kernel, args.sigma)
     else:
         blur_filter = None
+
+    random_rotate = transforms.Compose(
+                [
+                    transforms.RandomHorizontalFlip(),
+                    transforms.RandomRotation(degrees=180)
+                ])
 
     indices = list(range(len(train_data)))
     np.random.shuffle(indices)
@@ -147,7 +156,10 @@ if __name__ == "__main__":
 
     
     model = RestoreCNN(inchannel, n)
-    model.apply(init_weights)
+    if args.load:
+        model = torch.load('./' + "restore_" + 'EMNIST' + "_" + str(int(args.sigma)) + "_" + 'latest_model.pt')
+    else:
+        model.apply(init_weights)
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr = args.lr)   
     loss_func = nn.MSELoss()

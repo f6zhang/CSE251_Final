@@ -9,12 +9,13 @@ np.random.seed(2048)
 torch.manual_seed(2048)
 
 def test(model, data_loader):
-    model = torch.load('./' + "restore_" + 'FashionMNIST' + "_" + str(int(args.sigma)) + "_" + 'latest_model.pt')
+    model = torch.load('./' + "restore_" + 'EMNIST' + "_" + str(int(args.sigma)) + "_" + 'latest_model.pt')
     model.eval()
     total = 0
     total_loss = 0
     with torch.no_grad():
         for images, _ in data_loader:
+            #images = random_rotate(images)
             inputs = torch.tensor(blur_filter(images), device=device, dtype=torch.float32)
             targets = images.to(device)
             output = model(inputs)
@@ -41,7 +42,7 @@ def test(model, data_loader):
                 id += 1
 
             break
-    total_loss /= len(data_loader)
+    total_loss /= total
     print('Loss of the model on the Test images: %.4f' % total_loss)
 
     return total_loss
@@ -49,13 +50,13 @@ def test(model, data_loader):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--data', type=str, default='FashionMNIST')
+    parser.add_argument('--data', type=str, default='EMNIST')
     parser.add_argument('--data_type', type=str, default='original')
     parser.add_argument('--num_epochs', type=int, default=10)
     parser.add_argument('--patient', type=int, default=5)
     parser.add_argument('--batch_size', type=int, default=10)
     parser.add_argument('--lr', type=float, default=0.0001)
-    parser.add_argument('--box_size', type=int, default=18)
+    parser.add_argument('--box_size', type=int, default=9)
     parser.add_argument('--kernel', type=int, default=9)
     parser.add_argument('--sigma', type=float, default=1.0)
     parser.add_argument('--isRestore', type=bool, default=False)
@@ -72,6 +73,12 @@ if __name__ == "__main__":
         blur_filter = torchvision.transforms.GaussianBlur(args.kernel, args.sigma)
     else:
         blur_filter = None
+
+    random_rotate = transforms.Compose(
+                [
+                    transforms.RandomHorizontalFlip(),
+                    transforms.RandomRotation(degrees=180)
+                ])
 
     test_loader = DataLoader(test_data, num_workers=1, batch_size=args.batch_size)
 
