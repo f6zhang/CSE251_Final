@@ -56,14 +56,14 @@ def train(train_loader, args):
         val_loss = evaluate(valid_loader)
         val_losses.append(val_loss)
         if val_loss < best_loss:
-            torch.save(model, './' + "restore_"+ args.data + "_" + str(int(args.sigma)) +  "_" +'latest_model.pt')
+            torch.save(model, './' + "restore_"+ args.data + "_" + str(args.data_type) +  "_" +'latest_model.pt')
             best_loss = val_loss
             patient = 0
         else:
             patient += 1
             if patient >=5:
                 break
-    show_plot(train_losses, val_losses, type="Loss", save_path="results/loss_plt.png")
+    show_plot(train_losses, val_losses, type="Loss", save_path="results/move/loss_plt.png")
 
 def evaluate(data_loader):
     model.eval()
@@ -84,7 +84,7 @@ def evaluate(data_loader):
     return total_loss
 
 def test(model, data_loader):
-    model = torch.load('./' + "restore_"+ args.data + "_"+ str(int(args.sigma)) +  "_"+'latest_model.pt')
+    model = torch.load('./' + "restore_"+ args.data + "_" + str(args.data_type) +  "_"+'latest_model.pt')
     model.eval()
     total = 0
     total_loss = 0
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     
     model = RestoreCNN(inchannel, n)
     if args.load:
-        model = torch.load('./' + "restore_" + 'EMNIST' + "_" + str(int(args.sigma)) + "_" + 'latest_model.pt')
+        model = torch.load('./' + "restore_" + 'EMNIST' + "_" + str(args.data_type) + "_" + 'latest_model.pt')
     else:
         model.apply(init_weights)
     model.to(device)

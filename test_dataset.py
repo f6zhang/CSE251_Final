@@ -13,6 +13,7 @@ def test(model, data_loader):
     model.eval()
     total = 0
     total_loss = 0
+    blur_loss = 0
     with torch.no_grad():
         for images, _ in data_loader:
             #images = random_rotate(images)
@@ -22,28 +23,13 @@ def test(model, data_loader):
             loss = loss_func(output, targets)
             total += len(targets)
             total_loss += loss.item()
+            blur_loss += loss_func(inputs, targets).item()
 
-            id = 0
-            for img in inputs:
-                img = img.cpu().numpy()[0].astype(float)
-                plt.imsave('./images/apply_filter/blur_' + args.data + "_" + str(id) + '.jpg', img, cmap='gray')
-                id += 1
-
-            id = 0
-            for img in output:
-                img = img.cpu().numpy()[0].astype(float)
-                plt.imsave('./images/apply_filter/output_' + args.data + "_" + str(id) + '.jpg', img, cmap='gray')
-                id += 1
-
-            id = 0
-            for img in targets:
-                img = img.cpu().numpy()[0].astype(float)
-                plt.imsave('./images/apply_filter/origin_' + args.data + "_" + str(id) + '.jpg', img, cmap='gray')
-                id += 1
-
-            break
     total_loss /= total
     print('Loss of the model on the Test images: %.8f' % total_loss)
+
+    blur_loss /= total
+    print('Loss of Blur Images on the Test images: %.8f' % blur_loss)
 
     return total_loss
 
