@@ -163,8 +163,7 @@ if __name__ == "__main__":
     except:
         n_classes = max(train_data.labels) + 1
 
-    
-    model = U_Net(inchannel, n, n_classes)
+    model = swin_t(inchannel, n_classes)
     model.apply(init_weights)
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr = args.lr)   
@@ -173,7 +172,7 @@ if __name__ == "__main__":
     restoreModel =  RestoreCNN(inchannel, n)
     
     if args.isRestore:
-        restoreModel = torch.load( './' + "restore_"+ args.data + "_"+ str(int(args.sigma)) +  "_" + 'latest_model.pt')
+        restoreModel = torch.load( './' + "restore_"+ args.data + "_gaussian_" + 'latest_model.pt')
         restoreModel.to(device)
         restoreModel.eval()
 
