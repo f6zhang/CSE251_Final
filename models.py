@@ -135,18 +135,34 @@ class RestoreCNN(nn.Module):
         super(RestoreCNN, self).__init__()
         self.image_size = image_size
         self.inchannel = inchannel
-        
-        self.up1 = up_conv(inChannel=inchannel,outChannel=32)
-        self.up2 = up_conv(inChannel=32,outChannel=64)
+        self.conv1 = nn.Conv2d(1, 64, kernel_size=9, stride=1, padding=4)
+        self.down1 = nn.Conv2d(64, 64, kernel_size=9, stride=2, padding=4)
+        self.bn1 = nn.BatchNorm2d(64)
 
-        self.maxpool = nn.MaxPool2d(kernel_size=2,stride=2)
-        self.down1 = conv_block(inChannel=64, outChannel=inchannel)
+        self.conv2 = nn.Conv2d(64, 128, kernel_size=9, stride=1, padding=4)
+        self.down2 = nn.Conv2d(128, 128, kernel_size=9, stride=2, padding=4)
+        self.bn2 = nn.BatchNorm2d(128)
+
+        self.conv3 = nn.Conv2d(128, 256, kernel_size=9, stride=1, padding=4)
+        self.up1 = nn.ConvTranspose2d(256, 128, kernel_size=9, stride=2, padding=4, output_padding=1)
+        self.bn3 = nn.BatchNorm2d(256)
+
+        self.conv4 = nn.Conv2d(256, 128, kernel_size=9, stride=1, padding=4)
+        self.up2 = nn.ConvTranspose2d(128, 64, kernel_size=9, stride=2, padding=4, output_padding=1)
+        self.bn4 = nn.BatchNorm2d(128)
+
+        self.conv5 = nn.Conv2d(128, 64, kernel_size=9, stride=1, padding=4)
+        self.conv6 = nn.Conv2d(64, 1, kernel_size=1, stride=1)
+
+        self.relu = nn.PReLU()
+
     def forward(self, x):
-        x = self.up1(x)
-        x = self.up2(x)
-        x = self.maxpool(x)
-        x = self.down1(x)
-        output = self.maxpool(x)
-
-        return output
+        x = self.conv1(x)
+        x1 = self.conv2(self.bn1(self.relu(self.down1(self.relu(x)))))
+        out = self.relu(self.up1(self.relu(self.conv3(self.bn2(self.relu(self.down2(self.relu(x1))))))))
+        out = torch.cat([out, x1], dim=1)
+        out = self.relu(self.up2(self.relu(self.conv4(self.bn3(out)))))
+        out = torch.cat([out, x], dim=1)
+        out = self.relu(self.conv6(self.relu(self.conv5(self.bn4(out)))))
+        return out
 
