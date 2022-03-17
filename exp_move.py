@@ -192,7 +192,6 @@ if __name__ == "__main__":
     
     if args.isRestore:
         restoreModel = torch.load( './restore_move_FashionMNIST_latest_model_1.pt')
-        #restoreModel = torch.load( './' + "restore_"+ args.data + "_"+ str(int(args.sigma)) +  "_" + 'latest_model.pt')
         restoreModel.to(device)
         restoreModel.eval()
 
