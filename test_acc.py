@@ -30,15 +30,14 @@ def train(train_loader, args):
     num_epochs = args.num_epochs
     patient = args.patient
     best_loss = 1 << 30
-    iter_loss = 0
-    training_loss = 0
     total_step = len(train_loader)
 
     for epoch in range(num_epochs):
         training_loss = 0
+        iter_loss = 0
         for i, (images, labels) in enumerate(train_loader):
             if args.isRestore:
-                inputs = torch.tensor(blur_filter(inputs), device=device, dtype=torch.float32)
+                inputs = torch.tensor(blur_filter(images), device=device, dtype=torch.float32)
                 inputs = restoreModel(inputs)
             else:
                 inputs = images.to(device)
@@ -77,7 +76,7 @@ def evaluate(data_loader):
     with torch.no_grad():
         for images, labels in data_loader:
             if args.isRestore:
-                inputs = torch.tensor(blur_filter(inputs), device=device, dtype=torch.float32)
+                inputs = torch.tensor(blur_filter(images), device=device, dtype=torch.float32)
                 inputs = restoreModel(inputs)
             else:
                 inputs = images.to(device)
@@ -108,7 +107,7 @@ def test(model, data_loader):
     with torch.no_grad():
         for images, labels in data_loader:
             if args.isRestore:
-                inputs = torch.tensor(blur_filter(inputs), device=device, dtype=torch.float32)
+                inputs = torch.tensor(blur_filter(images), device=device, dtype=torch.float32)
                 inputs = restoreModel(inputs)
             else:
                 inputs = images.to(device)
@@ -135,6 +134,8 @@ if __name__ == "__main__":
     parser.add_argument('--patient', type=int, default=5)
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--lr', type=float, default=0.0001)
+    parser.add_argument('--box_size', type=int, default=9)
+    parser.add_argument('--kernel', type=int, default=9)
     parser.add_argument('--sigma', type=float, default=1.0)
     parser.add_argument('--isRestore', type=bool, default=False)
     args = parser.parse_args()

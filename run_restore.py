@@ -56,7 +56,7 @@ def train(train_loader, args):
         val_loss = evaluate(valid_loader)
         val_losses.append(val_loss)
         if val_loss < best_loss:
-            torch.save(model, './' + "restore_"+ args.data + "_" + str(args.data_type) +  "_" +'latest_model.pt')
+            torch.save(model, './' + "restore_"+ args.data + "_" + str(args.data_type) + "_" + str(args.model) + "_"+'latest_model.pt')
             best_loss = val_loss
             patient = 0
         else:
@@ -84,7 +84,7 @@ def evaluate(data_loader):
     return total_loss
 
 def test(model, data_loader):
-    model = torch.load('./' + "restore_"+ args.data + "_" + str(args.data_type) +  "_"+'latest_model.pt')
+    model = torch.load('./' + "restore_"+ args.data + "_" + str(args.data_type) + "_" + str(args.model) + "_"+'latest_model.pt')
     model.eval()
     total = 0
     total_loss = 0
@@ -126,6 +126,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process arguments.')
     parser.add_argument('--data', type=str, default='EMNIST')
     parser.add_argument('--data_type', type=str, default='original')
+    parser.add_argument('--model', type=str, default='UNet')
     parser.add_argument('--num_epochs', type=int,default=10)
     parser.add_argument('--patient', type=int,  default=5)
     parser.add_argument('--batch_size',  type=int, default=64)
@@ -177,8 +178,10 @@ if __name__ == "__main__":
     except:
         n_classes = max(train_data.labels) + 1
 
-    
-    model = RestoreCNN(inchannel, n)
+    if args.model == "UNet":
+        model = RestoreCNN(inchannel, n)
+    elif args.model == "ReverseUNet":
+        model = ReverseUNet(inchannel, n)
     if args.load:
         model = torch.load('./' + "restore_" + 'EMNIST' + "_" + str(args.data_type) + "_" + 'latest_model.pt')
     else:

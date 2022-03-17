@@ -17,7 +17,7 @@ def test(model, data_loader):
     with torch.no_grad():
         for images, _ in data_loader:
             #images = random_rotate(images)
-            inputs = torch.tensor(blur_filter(images), device=device, dtype=torch.float32)
+            inputs = torch.tensor(blur_filter(images), device=device, dtype=torch.float32).clone().detach()
             targets = images.to(device)
             output = model(inputs)
             loss = loss_func(output, targets)
